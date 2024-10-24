@@ -53,8 +53,7 @@ class FixedAssetsScreen extends StatelessWidget {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('Details of Fixed Assets'),
+          children: <Widget>[            
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
