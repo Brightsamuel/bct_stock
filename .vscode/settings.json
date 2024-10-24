@@ -1,0 +1,4 @@
+{
+    "github.experimental.multipleAccounts": true,
+    "github.gitProtocol": "https"
+}
