@@ -44,6 +44,7 @@ dependencies:
   path_provider: ^2.1.4
   excel: 2.0.0-null-safety-3
   share_extend: ^2.0.0
+  csv: ^6.0.0
 
 dev_dependencies:
   flutter_test:
