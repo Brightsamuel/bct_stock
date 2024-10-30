@@ -1,4 +1,5 @@
 {
     "github.experimental.multipleAccounts": true,
-    "github.gitProtocol": "https"
+    "github.gitProtocol": "https",
+    "cmake.ignoreCMakeListsMissing": true
 }

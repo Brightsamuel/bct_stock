@@ -1,53 +1,132 @@
 import 'package:flutter/material.dart';
+import 'package:excel/excel.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_extend/share_extend.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class Homescreen extends StatefulWidget {
-  const Homescreen({super.key});
+class StockScreen extends StatefulWidget {
+  final String assetType;
+
+  const StockScreen({required this.assetType, super.key});
 
   @override
-  State<Homescreen> createState() => _HomescreenState();
+  _StockScreenState createState() => _StockScreenState();
 }
 
-class _HomescreenState extends State<Homescreen> {
+class _StockScreenState extends State<StockScreen> {
   String? selectedStore;
-  final List<Stock> stockList = []; // List to store the stock items
+  List<Stock> stockList = [];
+
+  List<DropdownMenuItem<String>> get items {
+    return const [
+      DropdownMenuItem(value: "Stock in", child: Text("Stock in")),
+      DropdownMenuItem(value: "Stock out", child: Text("Stock out")),
+      // DropdownMenuItem(value: "Store 3", child: Text("Store 3")),
+      // DropdownMenuItem(value: "Store 4", child: Text("Store 4")),
+      // DropdownMenuItem(value: "Store 5", child: Text("Store 5")),
+    ];
+  }
+
+  void _showAddStockDialog(BuildContext context) {
+    final nameController = TextEditingController();
+    final unitsController = TextEditingController();
+    final unitPriceController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Add Stock'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(labelText: 'Stock Name'),
+              ),
+              TextField(
+                controller: unitsController,
+                decoration: const InputDecoration(labelText: 'Units'),
+                keyboardType: TextInputType.number,
+              ),
+              TextField(
+                controller: unitPriceController,
+                decoration: const InputDecoration(labelText: 'Unit Price'),
+                keyboardType: TextInputType.number,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final name = nameController.text;
+                final units = int.tryParse(unitsController.text) ?? 0;
+                final unitPrice = double.tryParse(unitPriceController.text) ?? 0.0;
+                if (name.isNotEmpty && units > 0 && unitPrice > 0) {
+                  if (selectedStore != null) {
+                    _addStock(name, units, unitPrice, selectedStore!);
+                    Navigator.of(context).pop();
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Please select a store')),
+                    );
+                  }
+                }
+              },
+              child: const Text('Add'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _addStock(String name, int units, double unitPrice, String store) {
+    final stock = Stock(
+      name: name,
+      units: units,
+      unitPrice: unitPrice,
+      store: store,
+    );
+    setState(() {
+      stockList.add(stock); // Add stock to the list
+    });
+  }
+
+  void _exportToExcel() async {
+    var excel = Excel.createExcel();
+    Sheet sheet = excel[excel.getDefaultSheet()!];
+    sheet.appendRow(['Ref no.', 'Store name', 'Item', 'Units', 'Quantity', 'Rate', 'Amount']);
+
+    for (var stock in stockList) {
+      sheet.appendRow([stock.name, 
+      stock.store, 
+      'Item', 
+      stock.units.toString(), 
+      'Quantity', 
+      stock.unitPrice.toString(), 
+      stock.totalPrice.toString()]);
+    }
+
+    var directory = await getApplicationDocumentsDirectory();
+    String filePath = '${directory.path}/stock_in.xlsx';
+    File(filePath)
+      ..createSync(recursive: true)
+      ..writeAsBytesSync(excel.save()!);
+
+    ShareExtend.share(filePath, "file");
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              decoration: const BoxDecoration(
-                color: Color.fromARGB(255, 37, 33, 243),
-              ),
-              child: Text(
-                'Menu',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontFamily: GoogleFonts.poppins().fontFamily,
-                  fontSize: 34.0,
-                ),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('Settings'),
-              onTap: () {},
-            ),
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text('Logout'),
-              onTap: () {},
-            ),
-          ],
-        ),
-      ),
-      appBar: AppBar(
+      appBar: AppBar(        
         backgroundColor: const Color.fromARGB(255, 37, 33, 243),
+        automaticallyImplyLeading: false,
         title: Center(
           child: Text(
             "Stocks",
@@ -87,17 +166,12 @@ class _HomescreenState extends State<Homescreen> {
                       itemCount: stockList.length,
                       itemBuilder: (context, index) {
                         final stock = stockList[index];
-                        if (selectedStore == null ||
-                            stock.store == selectedStore) {
+                        if (selectedStore == null || stock.store == selectedStore) {
                           return Card(
                             child: ListTile(
                               title: Text(stock.name),
-                              subtitle: Text(
-                                'Units: ${stock.units} | Unit Price: ${stock.unitPrice} UGX',
-                              ),
-                              trailing: Text(
-                                'Total: ${stock.totalPrice.toStringAsFixed(2)} UGX',
-                              ),
+                              subtitle: Text('Units: ${stock.units} | Unit Price: ${stock.unitPrice} UGX'),
+                              trailing: Text('Total: ${stock.totalPrice.toStringAsFixed(2)} UGX'),
                             ),
                           );
                         }
@@ -105,97 +179,19 @@ class _HomescreenState extends State<Homescreen> {
                       },
                     ),
             ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _exportToExcel,
+              child: const Text('Export'),
+            ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddStockDialog(context), // Show the dialog
+        onPressed: () => _showAddStockDialog(context),
         child: const Icon(Icons.add),
       ),
     );
-  }
-
-  List<DropdownMenuItem<String>> get items {
-    return [
-      const DropdownMenuItem(value: "Store 1", child: Text("Store 1")),
-      const DropdownMenuItem(value: "Store 2", child: Text("Store 2")),
-      const DropdownMenuItem(value: "Store 3", child: Text("Store 3")),
-      const DropdownMenuItem(value: "Store 4", child: Text("Store 4")),
-      const DropdownMenuItem(value: "Store 5", child: Text("Store 5")),
-    ];
-  }
-
-  void _showAddStockDialog(BuildContext context) {
-    final nameController = TextEditingController();
-    final unitsController = TextEditingController();
-    final unitPriceController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Add Stock'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nameController,
-                decoration: const InputDecoration(labelText: 'Stock Name'),
-              ),
-              TextField(
-                controller: unitsController,
-                decoration: const InputDecoration(labelText: 'Units'),
-                keyboardType: TextInputType.number,
-              ),
-              TextField(
-                controller: unitPriceController,
-                decoration: const InputDecoration(labelText: 'Unit Price'),
-                keyboardType: TextInputType.number,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final name = nameController.text;
-                final units = int.tryParse(unitsController.text) ?? 0;
-                final unitPrice =
-                    double.tryParse(unitPriceController.text) ?? 0.0;
-
-                if (name.isNotEmpty && units > 0 && unitPrice > 0) {
-                  if (selectedStore != null) {
-                    _addStock(name, units, unitPrice, selectedStore!);
-                    Navigator.of(context).pop();
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Please select a store')),
-                    );
-                  }
-                }
-              },
-              child: const Text('Add'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _addStock(String name, int units, double unitPrice, String store) {
-    final stock = Stock(
-      name: name,
-      units: units,
-      unitPrice: unitPrice,
-      store: store,
-    );
-
-    setState(() {
-      stockList.add(stock); // Add stock to the list
-    });
   }
 }
 
