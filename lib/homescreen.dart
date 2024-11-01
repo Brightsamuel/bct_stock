@@ -17,7 +17,7 @@ class Homescreen extends StatelessWidget {
           children: <Widget>[
             DrawerHeader(
               decoration: const BoxDecoration(
-                color: Color.fromARGB(255, 37, 33, 243),
+                color: Color.fromARGB(255, 52, 50, 205),
               ),
               child: Text(
                 'Menu',
@@ -47,8 +47,8 @@ class Homescreen extends StatelessWidget {
         ),
       ),
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 37, 33, 243),
-        iconTheme: const IconThemeData(color: Colors.white),  // This line changes the menu icon color to white
+        backgroundColor: const Color.fromARGB(255, 52, 50, 205),
+        iconTheme: const IconThemeData(color: Colors.white),  
         title: const Text(
           'Main Screen',
           style: TextStyle(

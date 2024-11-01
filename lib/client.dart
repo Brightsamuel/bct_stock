@@ -83,7 +83,7 @@ class _ClientInputScreenState extends State<ClientInputScreen> {
               labelText: 'Client ${i + 1}',
               //labelStyle: const TextStyle(color: Colors.white),
             ),
-            style: const TextStyle(color: Colors.black), // Keep the input text color black
+            style: const TextStyle(color: Colors.black), 
           ),
           const SizedBox(height: 16),
           ElevatedButton(
@@ -97,7 +97,10 @@ class _ClientInputScreenState extends State<ClientInputScreen> {
                 MaterialPageRoute(builder: (context) => StocksScreen(clientName: clientName)),
               );
             },
-                  child: Text('Client ${i + 1}'),
+                  child: Text('Client ${i + 1}',
+                  style: const TextStyle(
+                  color: Colors.white),
+                  ),
                 ),
                 const SizedBox(height: 16),
               ],

@@ -93,14 +93,20 @@ class _StockScreenState extends State<StockScreen> {
       store: store,
     );
     setState(() {
-      stockList.add(stock); // Add stock to the list
+      stockList.add(stock); 
     });
   }
 
   void _exportToExcel() async {
     var excel = Excel.createExcel();
     Sheet sheet = excel[excel.getDefaultSheet()!];
-    sheet.appendRow(['Ref no.', 'Store name', 'Item', 'Units', 'Quantity', 'Rate', 'Amount']);
+    sheet.appendRow(['Ref no.',     
+    'Store name', 
+    'Item', 'Units', 
+    'Quantity', 
+    'Rate', 
+    'Amount'
+    ]);
 
     for (var stock in stockList) {
       sheet.appendRow([stock.name, 
@@ -125,13 +131,13 @@ class _StockScreenState extends State<StockScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(        
-        backgroundColor: const Color.fromARGB(255, 37, 33, 243),
+        backgroundColor: const Color.fromARGB(255, 52, 50, 205),
         automaticallyImplyLeading: false,
         title: Center(
           child: Text(
             "Stocks",
             style: GoogleFonts.poppins(
-              fontSize: 40.0,
+              fontSize: 35.5,
               color: Colors.white,
               fontWeight: FontWeight.bold,
             ),

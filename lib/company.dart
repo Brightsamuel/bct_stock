@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:mon/store.dart';
+import 'package:mon/companystore.dart';
+
 
 
 class CompanyScreen extends StatelessWidget {
@@ -10,7 +10,7 @@ class CompanyScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 37, 33, 243),
+        backgroundColor: const Color.fromARGB(255, 52, 50, 205),
         title: const Text('Company Screen',
                 style: TextStyle(
                   color: Colors.white,                  
