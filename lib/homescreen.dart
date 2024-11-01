@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mon/client.dart';
 import 'package:mon/company.dart';
+import 'package:mon/login.dart';
 
 class Homescreen extends StatelessWidget {
   const Homescreen({super.key});
@@ -16,7 +17,7 @@ class Homescreen extends StatelessWidget {
           children: <Widget>[
             DrawerHeader(
               decoration: const BoxDecoration(
-                color: Color.fromARGB(255, 37, 33, 243),
+                color: Color.fromARGB(255, 52, 50, 205),
               ),
               child: Text(
                 'Menu',
@@ -35,18 +36,30 @@ class Homescreen extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.logout),
               title: const Text('Logout'),
-              onTap: () {},
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                );
+              },
             ),
           ],
         ),
       ),
       appBar: AppBar(
-        title: const Text('Main Screen'),
+        backgroundColor: const Color.fromARGB(255, 52, 50, 205),
+        iconTheme: const IconThemeData(color: Colors.white),  
+        title: const Text(
+          'Main Screen',
+          style: TextStyle(
+            color: Colors.white,            
+          ),
+        ),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[ 
+          children: <Widget>[
             ElevatedButton(
               onPressed: () {
                 Navigator.push(

@@ -20,11 +20,11 @@ class _StockScreenState extends State<StockScreen> {
 
   List<DropdownMenuItem<String>> get items {
     return const [
-      DropdownMenuItem(value: "Store 1", child: Text("Store 1")),
-      DropdownMenuItem(value: "Store 2", child: Text("Store 2")),
-      DropdownMenuItem(value: "Store 3", child: Text("Store 3")),
-      DropdownMenuItem(value: "Store 4", child: Text("Store 4")),
-      DropdownMenuItem(value: "Store 5", child: Text("Store 5")),
+      DropdownMenuItem(value: "Stock in", child: Text("Stock in")),
+      DropdownMenuItem(value: "Stock out", child: Text("Stock out")),
+      // DropdownMenuItem(value: "Store 3", child: Text("Store 3")),
+      // DropdownMenuItem(value: "Store 4", child: Text("Store 4")),
+      // DropdownMenuItem(value: "Store 5", child: Text("Store 5")),
     ];
   }
 
@@ -93,17 +93,29 @@ class _StockScreenState extends State<StockScreen> {
       store: store,
     );
     setState(() {
-      stockList.add(stock); // Add stock to the list
+      stockList.add(stock); 
     });
   }
 
   void _exportToExcel() async {
     var excel = Excel.createExcel();
     Sheet sheet = excel[excel.getDefaultSheet()!];
-    sheet.appendRow(['Ref no.', 'Store name', 'Item', 'Units', 'Quantity', 'Rate', 'Amount']);
+    sheet.appendRow(['Ref no.',     
+    'Store name', 
+    'Item', 'Units', 
+    'Quantity', 
+    'Rate', 
+    'Amount'
+    ]);
 
     for (var stock in stockList) {
-      sheet.appendRow([stock.name, stock.store, 'Item', stock.units.toString(), 'Quantity', stock.unitPrice.toString(), stock.totalPrice.toString()]);
+      sheet.appendRow([stock.name, 
+      stock.store, 
+      'Item', 
+      stock.units.toString(), 
+      'Quantity', 
+      stock.unitPrice.toString(), 
+      stock.totalPrice.toString()]);
     }
 
     var directory = await getApplicationDocumentsDirectory();
@@ -119,13 +131,13 @@ class _StockScreenState extends State<StockScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(        
-        backgroundColor: const Color.fromARGB(255, 37, 33, 243),
+        backgroundColor: const Color.fromARGB(255, 52, 50, 205),
         automaticallyImplyLeading: false,
         title: Center(
           child: Text(
             "Stocks",
             style: GoogleFonts.poppins(
-              fontSize: 40.0,
+              fontSize: 35.5,
               color: Colors.white,
               fontWeight: FontWeight.bold,
             ),
