@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:excel/excel.dart';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
-import 'package:share_extend/share_extend.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:mon/clientstore.dart';
 
 class ClientsScreen extends StatelessWidget {
   const ClientsScreen({super.key});
@@ -43,10 +39,12 @@ class ClientInputScreen extends StatefulWidget {
 
 class _ClientInputScreenState extends State<ClientInputScreen> {
   final List<TextEditingController> _clientControllers = [];
+  final List<String> _clientNames = [];
 
   void _addClient() {
     setState(() {
       _clientControllers.add(TextEditingController());
+      _clientNames.add('Client ${_clientControllers.length}');
     });
   }
 
@@ -72,34 +70,40 @@ class _ClientInputScreenState extends State<ClientInputScreen> {
         ],
       ),
       body: SingleChildScrollView(
-  child: Padding(
-    padding: const EdgeInsets.all(16.0),
-    child: Column(
-      children: [
-        for (var i = 0; i < _clientControllers.length; i++) ...[
-          TextField(
-            controller: _clientControllers[i],
-            decoration: InputDecoration(
-              labelText: 'Client ${i + 1}',
-              //labelStyle: const TextStyle(color: Colors.white),
-            ),
-            style: const TextStyle(color: Colors.black), 
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color.fromARGB(255, 37, 33, 243),
-            ),
-            onPressed: () {
-              final clientName = _clientControllers[i].text;
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => StocksScreen(clientName: clientName)),
-              );
-            },
-                  child: Text('Client ${i + 1}',
-                  style: const TextStyle(
-                  color: Colors.white),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              for (var i = 0; i < _clientControllers.length; i++) ...[
+                TextField(
+                  controller: _clientControllers[i],
+                  decoration: InputDecoration(
+                    labelText: 'Client ${i + 1}',
+                  ),
+                  onChanged: (text) {
+                    setState(() {
+                      _clientNames[i] = text;
+                    });
+                  },
+                  style: const TextStyle(color: Colors.black),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 37, 33, 243),
+                  ),
+                  onPressed: () {
+                    final clientName = _clientNames[i];
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ClientStockScreen(clientName: clientName, assetType: ''),
+                      ),
+                    );
+                  },
+                  child: Text(
+                    _clientNames[i],
+                    style: const TextStyle(color: Colors.white),
                   ),
                 ),
                 const SizedBox(height: 16),

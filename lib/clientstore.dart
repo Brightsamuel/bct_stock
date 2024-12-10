@@ -5,16 +5,16 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_extend/share_extend.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class StockScreen extends StatefulWidget {
+class ClientStockScreen extends StatefulWidget {
   final String assetType;
 
-  const StockScreen({required this.assetType, super.key});
+  const ClientStockScreen({required this.assetType, super.key, required String clientName});
 
   @override
-  _StockScreenState createState() => _StockScreenState();
+  _ClientStockScreenState createState() => _ClientStockScreenState();
 }
 
-class _StockScreenState extends State<StockScreen> {
+class _ClientStockScreenState extends State<ClientStockScreen> {
   String? selectedStore;
   List<Stock> stockList = [];
 
@@ -31,7 +31,8 @@ class _StockScreenState extends State<StockScreen> {
   void _showAddStockDialog(BuildContext context) {
     final nameController = TextEditingController();
     final unitsController = TextEditingController();
-    final unitPriceController = TextEditingController();
+    final quantityController = TextEditingController();     
+    final rateController = TextEditingController(); 
     showDialog(
       context: context,
       builder: (context) {
@@ -42,7 +43,12 @@ class _StockScreenState extends State<StockScreen> {
             children: [
               TextField(
                 controller: nameController,
-                decoration: const InputDecoration(labelText: 'Stock Name'),
+                decoration: const InputDecoration(labelText: 'Quantity'),
+              ),
+              TextField( 
+                controller: quantityController,
+                decoration: const InputDecoration(labelText: 'Quantity'),
+                keyboardType: TextInputType.number,
               ),
               TextField(
                 controller: unitsController,
@@ -50,8 +56,8 @@ class _StockScreenState extends State<StockScreen> {
                 keyboardType: TextInputType.number,
               ),
               TextField(
-                controller: unitPriceController,
-                decoration: const InputDecoration(labelText: 'Unit Price'),
+                controller: rateController,
+                decoration: const InputDecoration(labelText: 'Rate'),
                 keyboardType: TextInputType.number,
               ),
             ],
@@ -64,11 +70,13 @@ class _StockScreenState extends State<StockScreen> {
             ElevatedButton(
               onPressed: () {
                 final name = nameController.text;
+                final quantity = int.tryParse(quantityController.text) ?? 0;
                 final units = int.tryParse(unitsController.text) ?? 0;
-                final unitPrice = double.tryParse(unitPriceController.text) ?? 0.0;
-                if (name.isNotEmpty && units > 0 && unitPrice > 0) {
+                final rate = double.tryParse(rateController.text) ?? 0.0;
+
+                if (name.isNotEmpty && quantity > 0 && rate > 0) {
                   if (selectedStore != null) {
-                    _addStock(name, units, unitPrice, selectedStore!);
+                    _addStock(name, quantity, units, rate, selectedStore!);
                     Navigator.of(context).pop();
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -85,37 +93,46 @@ class _StockScreenState extends State<StockScreen> {
     );
   }
 
-  void _addStock(String name, int units, double unitPrice, String store) {
-    final stock = Stock(
-      name: name,
-      units: units,
-      unitPrice: unitPrice,
-      store: store,
-    );
-    setState(() {
-      stockList.add(stock); 
-    });
+  void _addStock(String name, int quantity, int units, double rate, String store) {
+    if (name.isNotEmpty && quantity > 0 && rate > 0) {
+      final stock = Stock(
+        name: name,
+        quantity: quantity,
+        units: units,
+        rate: rate,
+        store: store,
+      );
+      setState(() {
+        stockList.add(stock);
+      });
+    } else {
+      // Show a snackbar or dialog indicating invalid input
+    }
   }
 
   void _exportToExcel() async {
     var excel = Excel.createExcel();
     Sheet sheet = excel[excel.getDefaultSheet()!];
-    sheet.appendRow(['Ref no.',     
-    'Store name', 
-    'Item', 'Units', 
-    'Quantity', 
-    'Rate', 
-    'Amount'
+    sheet.appendRow([
+      'Ref no.',
+      'Store ',
+      'Description',
+      'Quantity',
+      'Units',
+      'Rate',
+      'Amount'
     ]);
 
     for (var stock in stockList) {
-      sheet.appendRow([stock.name, 
-      stock.store, 
-      'Item', 
-      stock.units.toString(), 
-      'Quantity', 
-      stock.unitPrice.toString(), 
-      stock.totalPrice.toString()]);
+      sheet.appendRow([
+        stock.name,
+        stock.store,
+        'Item', // Consider a more descriptive label
+        stock.quantity.toString(),
+        stock.units.toString(),
+        stock.rate.toString(),
+        stock.totalPrice.toStringAsFixed(2),
+      ]);
     }
 
     var directory = await getApplicationDocumentsDirectory();
@@ -130,7 +147,7 @@ class _StockScreenState extends State<StockScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(        
+      appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 52, 50, 205),
         automaticallyImplyLeading: false,
         title: Center(
@@ -151,7 +168,17 @@ class _StockScreenState extends State<StockScreen> {
             Row(
               children: [
                 Text("Store:", style: GoogleFonts.poppins()),
-                const SizedBox(width: 16),
+                const SizedBox(width: 8),
+                const SizedBox(
+                  width: 100,
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Store name',
+                      hintStyle: TextStyle(color: Colors.grey),
+                    ),
+                  ),
+                ),
+                const Spacer(),
                 DropdownButton<String>(
                   value: selectedStore,
                   items: items,
@@ -161,6 +188,22 @@ class _StockScreenState extends State<StockScreen> {
                     });
                   },
                   hint: const Text("Select Store"),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Text("Ref:", style: GoogleFonts.poppins()),
+                const SizedBox(width: 8),
+                const SizedBox(
+                  width: 100,
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Enter ref',
+                      hintStyle: TextStyle(color: Colors.grey),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -176,7 +219,7 @@ class _StockScreenState extends State<StockScreen> {
                           return Card(
                             child: ListTile(
                               title: Text(stock.name),
-                              subtitle: Text('Units: ${stock.units} | Unit Price: ${stock.unitPrice} UGX'),
+                              subtitle: Text('Units: ${stock.units} | Unit Price: ${stock.rate} UGX'),
                               trailing: Text('Total: ${stock.totalPrice.toStringAsFixed(2)} UGX'),
                             ),
                           );
@@ -203,16 +246,18 @@ class _StockScreenState extends State<StockScreen> {
 
 class Stock {
   final String name;
+  final int quantity;
   final int units;
-  final double unitPrice;
+  final double rate;
   final String store;
 
   Stock({
     required this.name,
+    required this.quantity,
     required this.units,
-    required this.unitPrice,
+    required this.rate,
     required this.store,
   });
 
-  double get totalPrice => units * unitPrice;
+  double get totalPrice => quantity * rate;
 }
